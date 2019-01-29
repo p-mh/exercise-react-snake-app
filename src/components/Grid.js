@@ -21,13 +21,23 @@ const newPosition = (direction, position) => {
 };
 
 const changeSnakePosition = (prevState, props) => {
-  const { snakeBody, position, direction } = prevState;
+  const { snakeBody, position, direction, snakeLength } = prevState;
   const [firstElement, ...othersElements] = snakeBody;
+  const newSnakeBody =
+    snakeLength === 0
+      ? []
+      : snakeLength > snakeBody.length
+      ? [...snakeBody, position]
+      : [...othersElements, position];
   return {
-    snakeBody: [...othersElements, position],
+    snakeBody: newSnakeBody,
     position: newPosition(direction, position),
   };
 };
+
+const addLength = (prevState, props) => ({
+  snakeLength: prevState.snakeLength + 1,
+});
 
 export default class Grid extends Component {
   constructor(props) {
@@ -36,7 +46,7 @@ export default class Grid extends Component {
       position: [3, 0],
       direction: null,
       snakeLength: 0,
-      snakeBody: [[3, 0]],
+      snakeBody: [],
       applePosition: [],
     };
     this.focusElement = null;
@@ -90,6 +100,7 @@ export default class Grid extends Component {
     const { position, applePosition } = this.state;
     if (applePosition[0] === position[0] && applePosition[1] === position[1]) {
       this.generateApple();
+      this.setState(addLength);
     }
     this.setState(changeSnakePosition);
   };
