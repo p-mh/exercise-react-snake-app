@@ -1,34 +1,41 @@
 import React, { Component } from 'react';
 
 import './grid.css';
+import { off } from 'rsvp';
 
-const NBCASES = 20;
+const NBCASES = 21;
 const GRID = Array(NBCASES).fill(Array(NBCASES).fill(0));
 
+const PLAY = 'PLAY';
+const END = 'END';
+
+const resetState = {
+  gameState: PLAY,
+  position: [Math.floor(NBCASES / 2), Math.floor(NBCASES / 2)],
+  direction: null,
+  snakeLength: 0,
+  snakeBody: [],
+  applePosition: [],
+};
+
 const newPosition = (direction, position) => {
-  switch (direction) {
-    case 'RIGHT':
-      return [position[0] + 1, position[1]];
-    case 'LEFT':
-      return [position[0] - 1, position[1]];
-    case 'DOWN':
-      return [position[0], position[1] + 1];
-    case 'UP':
-      return [position[0], position[1] - 1];
-    default:
-      return [position[0], position[1]];
-  }
+  const offsetLine = direction === 'RIGHT' ? 1 : direction === 'LEFT' ? -1 : 0;
+  const offsetColumn = direction === 'DOWN' ? 1 : direction === 'UP' ? -1 : 0;
+
+  return [position[0] + offsetLine, position[1] + offsetColumn];
 };
 
 const changeSnakePosition = (prevState, props) => {
   const { snakeBody, position, direction, snakeLength } = prevState;
   const [firstElement, ...othersElements] = snakeBody;
+
   const newSnakeBody =
     snakeLength === 0
       ? []
       : snakeLength > snakeBody.length
       ? [...snakeBody, position]
       : [...othersElements, position];
+
   return {
     snakeBody: newSnakeBody,
     position: newPosition(direction, position),
@@ -42,22 +49,12 @@ const addLength = (prevState, props) => ({
 export default class Grid extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      position: [3, 0],
-      direction: null,
-      snakeLength: 0,
-      snakeBody: [],
-      applePosition: [],
-    };
+    this.state = resetState;
     this.focusElement = null;
   }
 
   componentDidMount() {
-    this.focusElement.focus();
-    this.generateApple();
-    setInterval(() => {
-      this.move();
-    }, 100);
+    this.resetGame();
   }
 
   isSnakeIn = (column, line) =>
@@ -74,25 +71,15 @@ export default class Grid extends Component {
     column === this.state.applePosition[0] &&
     line === this.state.applePosition[1];
 
-  keyDown = e => {
-    if (
-      e.key === 'ArrowRight' ||
-      e.key === 'ArrowLeft' ||
-      e.key === 'ArrowUp' ||
-      e.key === 'ArrowDown'
-    ) {
-      this.getDirection(e.key);
-    }
-  };
-
-  getDirection = val => {
-    const newDirection =
-      (val === 'ArrowRight' && 'RIGHT') ||
-      (val === 'ArrowLeft' && 'LEFT') ||
-      (val === 'ArrowUp' && 'UP') ||
-      (val === 'ArrowDown' && 'DOWN');
+  getDirection = e => {
+    const directions = {
+      ArrowRight: 'RIGHT',
+      ArrowLeft: 'LEFT',
+      ArrowUp: 'UP',
+      ArrowDown: 'DOWN',
+    };
     this.setState({
-      direction: newDirection,
+      direction: directions[e.key],
     });
   };
 
@@ -102,7 +89,22 @@ export default class Grid extends Component {
       this.generateApple();
       this.setState(addLength);
     }
+    if (this.checkColision(position)) {
+      return this.loose();
+    }
+    if (this.checkBorder(position)) {
+      return this.loose();
+    }
     this.setState(changeSnakePosition);
+  };
+
+  checkBorder = position => {
+    return (
+      position[0] < 0 ||
+      position[0] > NBCASES - 1 ||
+      position[1] < 0 ||
+      position[1] > NBCASES - 1
+    );
   };
 
   generateApple = () => {
@@ -112,6 +114,28 @@ export default class Grid extends Component {
         Math.floor(Math.random() * NBCASES),
       ],
     });
+  };
+
+  checkColision = position =>
+    this.state.snakeBody.find(
+      elementPosition =>
+        elementPosition[0] === position[0] && elementPosition[1] === position[1]
+    );
+
+  loose = () => {
+    clearInterval(this.intervalMove);
+    this.setState({
+      gameState: END,
+    });
+  };
+
+  resetGame = () => {
+    this.setState(resetState);
+    this.focusElement.focus();
+    this.generateApple();
+    this.intervalMove = setInterval(() => {
+      this.move();
+    }, 100);
   };
 
   render() {
@@ -130,14 +154,25 @@ export default class Grid extends Component {
       </div>
     ));
 
+    const endGame = (
+      <div className="endgame">
+        <p>You loose</p>
+        <button onClick={this.resetGame}>Play Again</button>
+      </div>
+    );
+
     return (
-      <div
-        className="grid"
-        tabIndex="-1"
-        ref={element => (this.focusElement = element)}
-        onKeyDown={e => this.keyDown(e)}
-      >
-        {grid}
+      <div>
+        <div
+          className="grid"
+          tabIndex="-1"
+          ref={element => (this.focusElement = element)}
+          onKeyDown={e => this.getDirection(e)}
+        >
+          {grid}
+          {this.state.gameState === 'END' ? endGame : null}
+        </div>
+        <p>{this.state.snakeLength}</p>
       </div>
     );
   }
