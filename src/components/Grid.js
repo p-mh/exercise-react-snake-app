@@ -9,8 +9,10 @@ export default class Grid extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      position: [0, 0],
+      position: [3, 0],
       direction: null,
+      snakeLength: 0,
+      snakeBody: [[2, 0]],
     };
     this.focusElement = null;
   }
@@ -19,11 +21,19 @@ export default class Grid extends Component {
     this.focusElement.focus();
     setInterval(() => {
       this.move();
-    }, 100);
+    }, 150);
   }
 
   isSnakeIn = (column, line) => {
     return column === this.state.position[0] && line === this.state.position[1];
+  };
+
+  isSnakeBody = (column, line) => {
+    return this.state.snakeBody.find(
+      position => column === position[0] && line === position[1]
+    )
+      ? true
+      : false;
   };
 
   keyDown = e => {
@@ -49,8 +59,11 @@ export default class Grid extends Component {
   };
 
   newPosition = () => {
-    const { direction, position } = this.state;
-
+    const { direction, position, snakeBody } = this.state;
+    const [firstElement, ...othersElements] = snakeBody;
+    this.setState({
+      snakeBody: [...othersElements, position],
+    });
     switch (direction) {
       case 'RIGHT':
         return [position[0] + 1, position[1]];
@@ -66,7 +79,6 @@ export default class Grid extends Component {
   };
 
   move = () => {
-    const { position } = this.state;
     this.setState({
       position: this.newPosition(),
     });
@@ -77,9 +89,9 @@ export default class Grid extends Component {
       <div className="line" key={indexLine}>
         {line.map((box, indexColumn) => (
           <div
-            className={
-              this.isSnakeIn(indexColumn, indexLine) ? 'box snakein' : 'box'
-            }
+            className={`box ${
+              this.isSnakeIn(indexColumn, indexLine) ? 'snakehead' : ''
+            } ${this.isSnakeBody(indexColumn, indexLine) ? 'snakebody' : ''}`}
             key={indexColumn}
           />
         ))}
