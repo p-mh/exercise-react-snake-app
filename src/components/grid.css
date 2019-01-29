@@ -1,10 +1,18 @@
+.grid {
+}
+
 .line {
   display: flex;
+  justify-content: center;
 }
 
 .box {
-  width: 2vw;
-  height: 2vw;
+  width: 4%;
+  padding-bottom: 4%;
   background-color: #333;
   border: #000 1px solid;
+}
+
+.box.snakein {
+  background-color: red;
 }
