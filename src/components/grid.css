@@ -20,3 +20,7 @@
 .box.snakebody {
   background-color: rgb(126, 0, 0);
 }
+
+.box.apple {
+  background-color: green;
+}
