@@ -1,3 +1,5 @@
+import getNewApplePosition from './logic/apple';
+
 export const NBCASES = 21;
 export const GRID = Array(NBCASES).fill(Array(NBCASES).fill(0));
 export const SPEED = 100;
@@ -16,5 +18,5 @@ export const RESETSTATE = {
   direction: null,
   snakeLength: 0,
   snakeBody: [],
-  applePosition: [],
+  applePosition: [5, 5],
 };

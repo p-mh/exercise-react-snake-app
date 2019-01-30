@@ -4,21 +4,14 @@ import isType from './logic/boxType';
 
 import colisionOrBorder from './logic/colisionOrBorder';
 
-import { changeSnakePosition, addLength } from './logic/statesFunctions';
-
-import getNewApplePosition from './logic/apple';
-
 import {
-  GRID,
-  SPEED,
-  PLAY,
-  END,
-  RIGHT,
-  LEFT,
-  DOWN,
-  UP,
-  RESETSTATE,
-} from './contantes';
+  changeSnakePosition,
+  addLength,
+  newApplePosition,
+  nextDirection,
+} from './logic/statesFunctions';
+
+import { GRID, SPEED, PLAY, END, RESETSTATE } from './contantes';
 
 import {
   GridStyle,
@@ -42,46 +35,25 @@ export default class Grid extends Component {
   resetGame = () => {
     this.setState(RESETSTATE);
     this.focusElement.focus();
-    this.generateApple();
+    this.setState(newApplePosition);
+    clearInterval(this.intervalMove);
     this.intervalMove = setInterval(() => {
       this.move();
     }, SPEED);
   };
 
-  generateApple = () => {
-    this.setState({
-      applePosition: getNewApplePosition(
-        this.state.snakeHead,
-        this.state.snakeBody
-      ),
-    });
-  };
-
-  getDirection = e => {
-    const directions = {
-      ArrowRight: RIGHT,
-      ArrowLeft: LEFT,
-      ArrowUp: UP,
-      ArrowDown: DOWN,
-    };
-    this.setState({
-      direction: directions[e.key],
-    });
+  updateDirection = e => {
+    this.setState(nextDirection(e.key));
   };
 
   move = () => {
-    const { snakeHead, applePosition, snakeBody } = this.state;
-    if (
-      applePosition[0] === snakeHead[0] &&
-      applePosition[1] === snakeHead[1]
-    ) {
-      this.generateApple();
-      this.setState(addLength);
-    }
+    const { snakeHead, snakeBody } = this.state;
     if (colisionOrBorder(snakeHead, snakeBody)) {
       return this.loose();
     }
     this.setState(changeSnakePosition);
+    this.setState(addLength);
+    this.setState(newApplePosition);
   };
 
   loose = () => {
@@ -100,18 +72,18 @@ export default class Grid extends Component {
       applePosition,
     } = this.state;
 
-    const grid = GRID.map((line, indexLine) => (
-      <Line key={indexLine}>
-        {line.map((column, indexColumn) => (
+    const grid = GRID.map((line, lineIndex) => (
+      <Line key={lineIndex}>
+        {line.map((col, colIndex) => (
           <Box
             type={isType(
-              indexColumn,
-              indexLine,
+              colIndex,
+              lineIndex,
               snakeHead,
               snakeBody,
               applePosition
             )}
-            key={indexColumn}
+            key={colIndex}
           />
         ))}
       </Line>
@@ -132,7 +104,7 @@ export default class Grid extends Component {
         <GridStyle
           tabIndex="-1"
           ref={element => (this.focusElement = element)}
-          onKeyDown={e => this.getDirection(e)}
+          onKeyDown={e => this.updateDirection(e)}
         >
           {grid}
           {gameState === END ? endGame : null}

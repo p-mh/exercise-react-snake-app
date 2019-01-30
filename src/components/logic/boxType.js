@@ -1,47 +1,30 @@
-const checkIsSamePosition = (
-  elementPositionX,
-  positionToCheckX,
-  elementPositionY,
-  positionToCheckY
-) =>
-  elementPositionX === positionToCheckX &&
-  elementPositionY === positionToCheckY;
+import checkIsSamePosition from './checkIsSamePosition';
 
-const isSnakeHead = (colIndex, lineIndex, snakeHeadPosition) => {
-  return checkIsSamePosition(
-    colIndex,
-    snakeHeadPosition[0],
-    lineIndex,
-    snakeHeadPosition[1]
-  );
+const isSnakeHead = (positionToCheck, snakeHeadPosition) => {
+  return checkIsSamePosition(positionToCheck, snakeHeadPosition);
 };
 
-const isSnakeBody = (colIndex, lineIndex, snakeBodyPositions) =>
-  snakeBodyPositions.find(position =>
-    checkIsSamePosition(colIndex, position[0], lineIndex, position[1])
+const isSnakeBody = (positionToCheck, snakeBodyPositions) =>
+  snakeBodyPositions.find(bodyPosition =>
+    checkIsSamePosition(positionToCheck, bodyPosition)
   );
 
-const isApple = (colIndex, lineIndex, applePosition) => {
-  return checkIsSamePosition(
-    colIndex,
-    applePosition[0],
-    lineIndex,
-    applePosition[1]
-  );
+const isApple = (positionToCheck, applePosition) => {
+  return checkIsSamePosition(positionToCheck, applePosition);
 };
 
 const isType = (
-  columnIndex,
+  colIndex,
   lineIndex,
   snakeHeadPosition,
   snakeBodyPositions,
   applePosition
 ) => {
   return (
-    (isSnakeHead(columnIndex, lineIndex, snakeHeadPosition) && 'snakehead') ||
-    (isSnakeBody(columnIndex, lineIndex, snakeBodyPositions) && 'snakebody') ||
-    (isApple(columnIndex, lineIndex, applePosition) && 'apple') ||
-    'classicBox'
+    (isSnakeHead([colIndex, lineIndex], snakeHeadPosition) && 'snakehead') ||
+    (isSnakeBody([colIndex, lineIndex], snakeBodyPositions) && 'snakebody') ||
+    (isApple([colIndex, lineIndex], applePosition) && 'apple') ||
+    'classicCase'
   );
 };
 

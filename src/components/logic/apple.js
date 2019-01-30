@@ -1,33 +1,19 @@
 import { NBCASES } from '../contantes';
 
+import checkIsSamePosition from './checkIsSamePosition';
+
 const newPosition = () => [
   Math.floor(Math.random() * NBCASES),
   Math.floor(Math.random() * NBCASES),
 ];
 
-const isFreePosition = (positionToCheck, positionToCompare) =>
-  positionToCheck[0] !== positionToCompare[0] ||
-  positionToCheck[1] !== positionToCompare[1];
-
-const isSnakeBody = (positionToCheck, snakeBody) => {
-  const isSnake = snakeBody.find(
-    position => !isFreePosition(positionToCheck, position)
-  );
-  return isSnake;
-};
-
-const isSnakeHead = (positionToCheck, snakeHead) => {
-  const isHead = !isFreePosition(positionToCheck, snakeHead);
-  return isHead;
-};
+const isSnake = (positionToCheck, snake) =>
+  snake.find(position => checkIsSamePosition(positionToCheck, position));
 
 const getNewApplePosition = (snakeHead, snakeBody) => {
   const applePosition = newPosition();
 
-  if (
-    !isSnakeBody(applePosition, snakeBody) &&
-    !isSnakeHead(applePosition, snakeHead)
-  ) {
+  if (!isSnake(applePosition, [...snakeBody, snakeHead])) {
     return applePosition;
   }
 

@@ -16,7 +16,7 @@ export const Line = styled.div`
 `;
 
 const type = {
-  classicBox: '#333',
+  classicCase: '#333',
   snakehead: 'red',
   snakebody: 'rgb(126, 0, 0)',
   apple: 'green',
