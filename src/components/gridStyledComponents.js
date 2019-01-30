@@ -3,7 +3,10 @@ import styled from 'styled-components';
 export const GridStyle = styled.div`
   position: relative;
   max-width: 700px;
-  margin: auto;
+  margin: 30px auto 30px auto;
+  background-color: #000;
+  border: #000 10px solid;
+  border-radius: 5px;
 `;
 
 export const Line = styled.div`
@@ -13,30 +16,18 @@ export const Line = styled.div`
 `;
 
 const type = {
-  box: '#333',
+  classicBox: '#333',
   snakehead: 'red',
   snakebody: 'rgb(126, 0, 0)',
   apple: 'green',
 };
 
 export const Box = styled.div`
-  width: 4%;
-  padding-bottom: 4%;
+  flex: 1 1 4.4%;
+  padding-bottom: 4.4%;
   background-color: ${props => type[props.type]};
   border: #000 1px solid;
 `;
-
-// export const Apple = styled(Box)`
-//   background-color: green;
-// `;
-
-// export const Snakebody = styled(Box)`
-//   background-color: rgb(126, 0, 0);
-// `;
-
-// export const Snakehead = styled(Box)`
-//   background-color: red;
-// `;
 
 export const Endgame = styled.div`
   position: absolute;
@@ -49,4 +40,12 @@ export const Endgame = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+`;
+
+export const PlayAgainButton = styled.button`
+  border: none;
+  background-color: #fff;
+  padding: 10px 20px;
+  border-radius: 2px;
+  margin: 40px 0;
 `;
