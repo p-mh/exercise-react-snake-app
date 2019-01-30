@@ -1,5 +1,6 @@
 export const NBCASES = 21;
 export const GRID = Array(NBCASES).fill(Array(NBCASES).fill(0));
+export const SPEED = 100;
 
 export const PLAY = 'PLAY';
 export const END = 'END';

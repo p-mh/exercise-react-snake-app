@@ -6,11 +6,11 @@ import colisionOrBorder from './logic/colisionOrBorder';
 
 import { changeSnakePosition, addLength } from './logic/statesFunctions';
 
-import newApple from './logic/newApple';
+import getNewApplePosition from './logic/apple';
 
 import {
-  NBCASES,
   GRID,
+  SPEED,
   PLAY,
   END,
   RIGHT,
@@ -45,12 +45,15 @@ export default class Grid extends Component {
     this.generateApple();
     this.intervalMove = setInterval(() => {
       this.move();
-    }, 100);
+    }, SPEED);
   };
 
   generateApple = () => {
     this.setState({
-      applePosition: newApple(this.state.snakeHead, this.state.snakeBody),
+      applePosition: getNewApplePosition(
+        this.state.snakeHead,
+        this.state.snakeBody
+      ),
     });
   };
 
