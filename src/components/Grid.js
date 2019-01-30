@@ -1,13 +1,17 @@
 import React, { Component } from 'react';
 
-import './grid.css';
-import { off } from 'rsvp';
+import { GridStyle, Line, Box, Endgame } from './gridStyledComponents';
 
 const NBCASES = 21;
 const GRID = Array(NBCASES).fill(Array(NBCASES).fill(0));
 
 const PLAY = 'PLAY';
 const END = 'END';
+
+const RIGHT = 'RIGHT';
+const LEFT = 'LEFT';
+const DOWN = 'DOWN';
+const UP = 'UP';
 
 const resetState = {
   gameState: PLAY,
@@ -19,8 +23,8 @@ const resetState = {
 };
 
 const newPosition = (direction, position) => {
-  const offsetLine = direction === 'RIGHT' ? 1 : direction === 'LEFT' ? -1 : 0;
-  const offsetColumn = direction === 'DOWN' ? 1 : direction === 'UP' ? -1 : 0;
+  const offsetLine = direction === RIGHT ? 1 : direction === LEFT ? -1 : 0;
+  const offsetColumn = direction === DOWN ? 1 : direction === UP ? -1 : 0;
 
   return [position[0] + offsetLine, position[1] + offsetColumn];
 };
@@ -57,26 +61,51 @@ export default class Grid extends Component {
     this.resetGame();
   }
 
-  isSnakeIn = (column, line) =>
-    column === this.state.position[0] && line === this.state.position[1];
+  isSnakeHead = (columnIndex, lineIndex) =>
+    this.checkIsSamePosition(
+      columnIndex,
+      this.state.position[0],
+      lineIndex,
+      this.state.position[1]
+    );
 
-  isSnakeBody = (column, line) =>
-    this.state.snakeBody.find(
-      position => column === position[0] && line === position[1]
-    )
-      ? true
-      : false;
+  isSnakeBody = (columnIndex, lineIndex) =>
+    this.state.snakeBody.find(position =>
+      this.checkIsSamePosition(columnIndex, position[0], lineIndex, position[1])
+    );
 
-  isApple = (column, line) =>
-    column === this.state.applePosition[0] &&
-    line === this.state.applePosition[1];
+  isApple = (columnIndex, lineIndex) =>
+    this.checkIsSamePosition(
+      columnIndex,
+      this.state.applePosition[0],
+      lineIndex,
+      this.state.applePosition[1]
+    );
+
+  checkIsSamePosition = (
+    elementPositionX,
+    positionToCheckX,
+    elementPositionY,
+    positionToCheckY
+  ) =>
+    elementPositionX === positionToCheckX &&
+    elementPositionY === positionToCheckY;
+
+  isType = (columnIndex, lineIndex) => {
+    return (
+      (this.isSnakeBody(columnIndex, lineIndex) && 'snakebody') ||
+      (this.isSnakeHead(columnIndex, lineIndex) && 'snakehead') ||
+      (this.isApple(columnIndex, lineIndex) && 'apple') ||
+      'box'
+    );
+  };
 
   getDirection = e => {
     const directions = {
-      ArrowRight: 'RIGHT',
-      ArrowLeft: 'LEFT',
-      ArrowUp: 'UP',
-      ArrowDown: 'DOWN',
+      ArrowRight: RIGHT,
+      ArrowLeft: LEFT,
+      ArrowUp: UP,
+      ArrowDown: DOWN,
     };
     this.setState({
       direction: directions[e.key],
@@ -140,38 +169,40 @@ export default class Grid extends Component {
 
   render() {
     const grid = GRID.map((line, indexLine) => (
-      <div className="line" key={indexLine}>
-        {line.map((box, indexColumn) => (
-          <div
+      <Line key={indexLine}>
+        {line.map(
+          (box, indexColumn) => {
+            return <Box type={this.isType(indexColumn, indexLine)} />;
+          }
+          /* <div
             className={`box ${
               this.isSnakeIn(indexColumn, indexLine) ? 'snakehead' : ''
             } ${this.isSnakeBody(indexColumn, indexLine) ? 'snakebody' : ''} ${
               this.isApple(indexColumn, indexLine) ? 'apple' : ''
             }`}
             key={indexColumn}
-          />
-        ))}
-      </div>
+          /> */
+        )}
+      </Line>
     ));
 
     const endGame = (
-      <div className="endgame">
+      <Endgame>
         <p>You loose</p>
         <button onClick={this.resetGame}>Play Again</button>
-      </div>
+      </Endgame>
     );
 
     return (
       <div>
-        <div
-          className="grid"
+        <GridStyle
           tabIndex="-1"
           ref={element => (this.focusElement = element)}
           onKeyDown={e => this.getDirection(e)}
         >
           {grid}
           {this.state.gameState === 'END' ? endGame : null}
-        </div>
+        </GridStyle>
         <p>{this.state.snakeLength}</p>
       </div>
     );
